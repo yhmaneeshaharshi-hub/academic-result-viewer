@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Management System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --indigo-600: #4f46e5;
+            --indigo-900: #1e1b4b;
+            --purple-600: #7c3aed;
+        }
+
+        body { background-color: #f8fafc; overflow-x: hidden; }
+
+        /* 2. Responsive Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--indigo-900) 0%, var(--purple-600) 100%);
+            padding: 1rem;
+        }
+
+        /* 3. Global Mobile Fixes */
+        @media (max-width: 768px) {
+            .display-3 { font-size: 2.5rem; } /* Shrink big titles on mobile */
+            .display-4 { font-size: 2rem; }
+            
+            .container { padding-left: 15px; padding-right: 15px; }
+
+            /* Make all table rows look like cards on mobile */
+            .table-responsive { border: none; }
+            table thead { display: none; }
+            table tr { 
+                display: block; 
+                margin-bottom: 1rem; 
+                border: 1px solid #e2e8f0; 
+                border-radius: 12px;
+                background: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+            table td { 
+                display: flex; 
+                justify-content: space-between; 
+                padding: 10px 15px !important;
+                border: none !important;
+                text-align: right;
+            }
+            /* Adds labels back to table data on mobile */
+            table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--indigo-900);
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-person-badge-fill me-2"></i>PMS <span class="fw-light">SYSTEM</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto gap-2 mt-3 mt-lg-0">
+                <li class="nav-nav-item">
+                    <a class="nav-link text-white" href="/industrial">Vacancies</a>
+                </li>
+                <li class="nav-nav-item">
+                    <a class="btn btn-light rounded-pill px-4 fw-bold" href="/login">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

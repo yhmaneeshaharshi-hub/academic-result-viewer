@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ student.name }} | Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 0; }
+        .profile-img { width: 150px; height: 150px; object-fit: cover; border: 5px solid white; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="hero-section text-center">
+    <div class="container">
+        <img src="{{ url_for('static', filename='profile_pics/' + student.profile_pic) }}" class="rounded-circle profile-img mb-3">
+        <h1 class="fw-bold">{{ student.name }}</h1>
+        <p class="lead opacity-75">Computer Science Student | Batch of {{ student.batch }}</p>
+        <div class="d-flex justify-content-center gap-3">
+            {% if student.github %}<a href="{{ student.github }}" class="text-white fs-3"><i class="bi bi-github"></i></a>{% endif %}
+            {% if student.linkedin %}<a href="{{ student.linkedin }}" class="text-white fs-3"><i class="bi bi-linkedin"></i></a>{% endif %}
+            {% if student.email %}<a href="mailto:{{ student.email }}" class="text-white fs-3"><i class="bi bi-envelope"></i></a>{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card p-4 mb-4">
+                <h4 class="fw-bold mb-3">About Me</h4>
+                <p class="text-muted">{{ student.bio if student.bio else "No bio provided yet." }}</p>
+            </div>
+            
+            <div class="card p-4">
+                <h4 class="fw-bold mb-3">Academic Highlights</h4>
+                <div class="row">
+                    {% for res, sub in results[:4] %} <div class="col-6 mb-2">
+                        <div class="p-2 bg-light rounded small">
+                            <strong>{{ sub.subject_name }}</strong>: {{ res.grade }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <h5 class="fw-bold">Contact Details</h5>
+                <hr>
+                <p class="small text-muted mb-0">Registration No:</p>
+                <p class="fw-bold">{{ student.reg_no }}</p>
+                <a href="/cv-preview" class="btn btn-outline-primary w-100 mt-2">View Full CV</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

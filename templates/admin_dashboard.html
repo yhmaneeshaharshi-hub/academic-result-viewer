@@ -6,49 +6,103 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        .stat-card { border: none; border-radius: 12px; transition: transform 0.2s; }
+        :root {
+            --indigo-deep: #312e81;
+            --indigo-bright: #4338ca;
+            --purple-rich: #6d28d9;
+        }
+
+        body { background-color: #f8fafc; }
+
+        /* Header Gradient */
+        .admin-header {
+            background: linear-gradient(135deg, var(--indigo-deep) 0%, var(--indigo-bright) 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            border-bottom: 5px solid var(--purple-rich);
+        }
+
+        /* Stat Cards */
+        .stat-card { 
+            border: none; 
+            border-radius: 15px; 
+            transition: transform 0.3s ease; 
+            color: white;
+        }
         .stat-card:hover { transform: translateY(-5px); }
-        .upload-card { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .table-card { border-radius: 15px; overflow: hidden; }
+        .bg-indigo { background: linear-gradient(135deg, #4338ca 0%, #312e81 100%); }
+        .bg-purple { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+
+        /* Action Cards */
+        .upload-card { 
+            border-radius: 20px; 
+            border: none; 
+            box-shadow: 0 10px 25px rgba(49, 46, 129, 0.08); 
+            background: white;
+            transition: 0.3s;
+        }
+        .upload-card:hover { box-shadow: 0 15px 35px rgba(49, 46, 129, 0.12); }
+
+        /* Button Styling */
+        .btn-indigo { background: var(--indigo-bright); color: white; border: none; }
+        .btn-indigo:hover { background: var(--indigo-deep); color: white; }
+        .btn-purple { background: var(--purple-rich); color: white; border: none; }
+        .btn-purple:hover { background: #4c1d95; color: white; }
+        
+        .table-card { border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-5 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="admin-header">
+    <div class="container d-flex justify-content-between align-items-center">
         <div>
-            <h2 class="fw-bold mb-0 text-dark">Admin Management Portal</h2>
-            <p class="text-muted">Manage subjects, students, and academic results.</p>
+            <h2 class="fw-bold mb-0">Admin Management Portal</h2>
+            <p class="opacity-75 mb-0">Manage subjects, students, results, and industrial links.</p>
         </div>
-        <a href="/logout" class="btn btn-danger px-4 rounded-pill fw-bold">
+        <a href="/logout" class="btn btn-outline-light px-4 rounded-pill fw-bold shadow-sm">
             <i class="bi bi-box-arrow-right me-2"></i>Logout
         </a>
     </div>
+</div>
 
-    <div class="row g-3 mb-5">
+<div class="container mb-5">
+    <div class="row g-3 mb-5 text-center">
         <div class="col-md-6">
-            <div class="card stat-card bg-primary text-white shadow-sm p-4 text-center">
+            <div class="card stat-card bg-indigo shadow-sm p-4">
                 <h6 class="text-uppercase small fw-bold opacity-75">Total Students</h6>
                 <h2 class="display-5 fw-bold">{{ scount }}</h2>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card stat-card bg-success text-white shadow-sm p-4 text-center">
+            <div class="card stat-card bg-indigo shadow-sm p-4">
                 <h6 class="text-uppercase small fw-bold opacity-75">Subjects Offered</h6>
                 <h2 class="display-5 fw-bold">{{ subcount }}</h2>
             </div>
         </div>
     </div>
 
-    <div class="row g-4 mb-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="row g-4 mb-4">
         <div class="col-md-4">
             <div class="card upload-card h-100 p-3">
                 <div class="card-body">
-                    <h5 class="card-title text-primary fw-bold mb-3">Step 1: Upload Subjects</h5>
-                    <p class="small text-muted mb-3">Ensure headers: <code>subject_code, subject_name, credits</code></p>
+                    <h5 class="card-title fw-bold mb-3" style="color: var(--purple-rich);">Subjects</h5>
+                    <p class="small text-muted mb-3">Headers: <code>subject_code, subject_name, credits</code></p>
                     <form action="/upload_subjects" method="POST" enctype="multipart/form-data">
                         <input type="file" name="file" accept=".csv,.xlsx,.xls" class="form-control mb-3" required>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">Upload CSV/Excel</button>
+                        <button type="submit" class="btn btn-purple w-100 fw-bold">Upload CSV/Excel</button>
                     </form>
                 </div>
             </div>
@@ -57,11 +111,11 @@
         <div class="col-md-4">
             <div class="card upload-card h-100 p-3">
                 <div class="card-body">
-                    <h5 class="card-title text-success fw-bold mb-3">Step 2: Upload Students</h5>
-                    <p class="small text-muted mb-3">Ensure headers: <code>reg_no, name, password, batch</code></p>
+                    <h5 class="card-title fw-bold mb-3" style="color: var(--purple-rich);"> Students</h5>
+                    <p class="small text-muted mb-3">Headers: <code>reg_no, name, password, batch</code></p>
                     <form action="/upload_students" method="POST" enctype="multipart/form-data">
                         <input type="file" name="file" accept=".csv,.xlsx,.xls" class="form-control mb-3" required>
-                        <button type="submit" class="btn btn-success w-100 fw-bold">Upload CSV/Excel</button>
+                        <button type="submit" class="btn btn-purple w-100 fw-bold">Upload CSV/Excel</button>
                     </form>
                 </div>
             </div>
@@ -70,7 +124,7 @@
         <div class="col-md-4">
             <div class="card upload-card h-100 p-3">
                 <div class="card-body">
-                    <h5 class="card-title text-warning fw-bold mb-3">Step 3: Upload Results</h5>
+                    <h5 class="card-title fw-bold mb-3 " style="color: var(--purple-rich);"> Results</h5>
                     <p class="small text-muted mb-3">Select the correct semester before uploading.</p>
                     <form action="/upload" method="POST" enctype="multipart/form-data">
                         <select name="semester_info" class="form-select mb-3" required>
@@ -85,45 +139,76 @@
                             <option value="4-8">Year 4 - Sem 8</option>
                         </select>
                         <input type="file" name="file" class="form-control mb-3" required>
-                        <button type="submit" class="btn btn-warning w-100 fw-bold text-white">Upload Results</button>
+                        <button type="submit" class="btn btn-purple w-100 fw-bold">Upload Results</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm table-card border-0">
-        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Login Activity</h5>
-            <span class="badge bg-secondary">Total Active: {{ logins|length }}</span>
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <div class="card upload-card p-3" style="border-left: 8px solid var(--indigo-deep);">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3" style="color: var(--indigo-deep);">
+                        <i class="bi bi-megaphone me-2"></i> Post Industrial Vacancy
+                    </h5>
+                    <form action="/admin/add-vacancy" method="POST">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="small fw-bold text-muted">Role Category</label>
+                                <select name="category" class="form-select" required>
+                                    <option value="Web Developer">Web Developer</option>
+                                    <option value="Data Science">Data Science</option>
+                                    <option value="Project Manager">Project Manager</option>
+                                    <option value="Software Engineer">Software Engineer</option>
+                                    <option value="Network Engineer">Network Engineer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted">Company & Job Title</label>
+                                <input type="text" name="title" class="form-control" placeholder="e.g. Google - Frontend Intern" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small fw-bold text-muted">Application URL</label>
+                                <input type="url" name="link" class="form-control" placeholder="https://..." required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-indigo w-100 fw-bold">Post Vacancy</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card table-card border-0">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center" style="background: var(--indigo-deep); color: white;">
+            <h5 class="mb-0 small fw-bold"><i class="bi bi-clock-history me-2"></i>Recent Login Activity</h5>
+            <span class="badge bg-light text-dark">Total Active: {{ logins|length }}</span>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
-                        <tr>
+                        <tr class="small text-uppercase">
                             <th class="ps-4 py-3">Registration Number</th>
                             <th class="py-3 text-center">Student Name</th>
-                            <th class="py-3 text-end pe-4">Last Login Date & Time</th>
+                            <th class="py-3 text-end pe-4">Last Login</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for entry in logins %}
                         <tr>
-                            <td class="ps-4 fw-bold text-primary">{{ entry.reg_no }}</td>
-                            <td class="text-center text-secondary">{{ entry.name }}</td>
+                            <td class="ps-4 fw-bold" style="color: var(--indigo-bright);">{{ entry.reg_no }}</td>
+                            <td class="text-center">{{ entry.name }}</td>
                             <td class="text-end pe-4 text-muted">
                                 {% if entry.last_login %}
                                     {{ entry.last_login.strftime('%Y-%m-%d | %I:%M %p') }}
                                 {% else %}
-                                    <span class="text-muted italic">No activity</span>
+                                    <span class="fst-italic opacity-50">No activity</span>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="3" class="text-center py-5 text-muted">
-                                <i class="bi bi-info-circle me-2"></i>No student login activity recorded yet.
                             </td>
                         </tr>
                         {% endfor %}
@@ -134,5 +219,6 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

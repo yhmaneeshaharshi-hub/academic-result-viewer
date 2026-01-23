@@ -5,73 +5,60 @@
     <title>Student Dashboard | {{ student.name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        .profile-card { border-radius: 15px; overflow: hidden; }
-        .result-card { border-radius: 12px; }
-        .gpa-badge { font-size: 0.9rem; border-radius: 20px; }
-    </style>
 </head>
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-primary shadow-sm mb-4">
     <div class="container">
         <span class="navbar-brand fw-bold">🎓 Academic Portal</span>
-        <a href="/logout" class="btn btn-light btn-sm fw-bold">Logout</a>
+        <div class="d-flex gap-2">
+            <a href="/cv-builder" class="btn btn-outline-light btn-sm">CV Builder</a>
+            <a href="/industrial" class="btn btn-outline-light btn-sm">Vacancies</a>
+            <a href="/logout" class="btn btn-light btn-sm fw-bold">Logout</a>
+        </div>
     </div>
 </nav>
 
 <div class="container">
     <div class="row">
         <div class="col-md-3">
-            <div class="card profile-card shadow-sm border-0 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body text-center">
                     <img src="{{ url_for('static', filename='profile_pics/' + (student.profile_pic or 'default.png')) }}" 
-                         class="rounded-circle border mb-3" 
-                         style="width: 120px; height: 120px; object-fit: cover;">
+                         class="rounded-circle border mb-3" style="width: 100px; height: 100px; object-fit: cover;">
                     <h5 class="fw-bold mb-0">{{ student.name }}</h5>
                     <p class="text-muted small">{{ student.reg_no }}</p>
-                    
-                    <p class="small text-start mt-3">
-                        <strong>Bio:</strong><br>
-                        <span class="text-secondary">{{ student.bio or 'No bio added.' }}</span>
-                    </p>
-
-                    <div class="d-flex justify-content-center gap-2 mb-3">
-                        {% if student.github %}<a href="{{ student.github }}" class="btn btn-outline-dark btn-sm"><i class="bi bi-github"></i></a>{% endif %}
-                        {% if student.linkedin %}<a href="{{ student.linkedin }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-linkedin"></i></a>{% endif %}
-                    </div>
-
-                    <a href="/student/profile" class="btn btn-primary btn-sm w-100">Edit Profile</a>
+                    <a href="/student/profile" class="btn btn-primary btn-sm w-100 mt-2">Edit Profile</a>
                 </div>
             </div>
         </div>
 
         <div class="col-md-9">
-            <h4 class="mb-4 fw-bold">My Semester Results</h4>
+            <h4 class="mb-4 fw-bold text-dark">My Academic Records</h4>
             
             {% for sem in semesters %}
-            <div class="card result-card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold">Semester {{ sem.num }}</h6>
-                    <span class="badge bg-success gpa-badge">GPA: {{ "%.2f"|format(sem.gpa) }}</span>
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h6 class="mb-0 fw-bold text-primary">SEMESTER {{ sem.num }}</h6>
+                    <span class="badge bg-success">GPA: {{ "%.2f"|format(sem.gpa) }}</span>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 small">
+                    <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Code</th>
-                                <th>Subject</th>
-                                <th>Credits</th>
+                                <th class="ps-3">Code</th>
+                                <th>Subject Name</th>
+                                <th class="text-center">Credits</th>
                                 <th class="text-center">Grade</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for res, sub in sem.results %}
+                            {% for item in sem.results %}
                             <tr>
-                                <td>{{ sub.subject_code }}</td>
-                                <td>{{ sub.subject_name }}</td>
-                                <td>{{ sub.credits }}</td>
-                                <td class="text-center fw-bold">{{ res.grade }}</td>
+                                <td class="ps-3 fw-bold text-uppercase">{{ item.sub.subject_code }}</td>
+                                <td>{{ item.sub.subject_name }}</td>
+                                <td class="text-center">{{ item.sub.credits }}</td>
+                                <td class="text-center fw-bold text-primary">{{ item.res.grade }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -79,7 +66,7 @@
                 </div>
             </div>
             {% else %}
-            <div class="alert alert-info border-0">No results found yet.</div>
+            <div class="alert alert-info">No results have been uploaded for your ID yet.</div>
             {% endfor %}
         </div>
     </div>

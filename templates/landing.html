@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid p-0" style="background-color: #ffffff; color: #37352f;">
+
+    <div class="py-5 border-bottom" style="background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%); color: white;">
+        <div class="container py-5 text-center">
+            <div class="d-inline-block px-3 py-1 mb-3 rounded-pill bg-white shadow-sm small fw-bold" style="color: #4338ca;">
+                ✨ Unilink portal
+            </div>
+            <h1 class="display-4 fw-bold mb-3" style="letter-spacing: -1.5px; color: #ffffff;">
+                Architect of your Future,<span style="color: #a5b4fc;"> Personalized Profile Management</span>
+            </h1>
+            <p class="lead mb-4 mx-auto text-white-50" style="max-width: 700px; font-weight: 400;">
+                A centralized hub for academic excellence, career readiness, and performance analytics.
+                Built for the modern student.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                
+                <a href="/login" class="btn btn-outline-light btn-lg px-5 rounded-pill fw-bold">explore</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5 py-4">
+        <div class="mb-5">
+            <h3 class="fw-bold m-0" style="letter-spacing: -0.5px; color: #312e81;">Career & Academic Toolkit</h3>
+            <p class="text-muted">Tools designed to empower your professional journey.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 card h-100 border-0 transition-hover shadow-sm text-white" style="background: linear-gradient(135deg, #a58ccc 0%, #4c1d95 100%);">
+                    <div class="fs-1 mb-3" ><i class="bi bi-person-badge"></i></div>
+                    <h5 class="fw-bold">CV Builder</h5>
+                    <p class="small text-white-100">Create department-approved CVs that highlight your academic strengths to recruiters.</p>
+                    <a href="/cv-builder" class="text-decoration-none fw-bold small mt-auto" style="color: #0d0618;">Open Builder →</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 card h-100 border-0 transition-hover shadow-sm text-white" style="background: linear-gradient(135deg, #a58ccc 0%, #4c1d95 100%);">
+                    <div class="fs-1 mb-3"><i class="bi bi-person-badge"></i></div>
+                    <h5 class="fw-bold">Digital Portfolio</h5>
+                    <p class="small text-white-100">Transform your student profile into a professional webpage to share with a single link.</p>
+                    <a href="/login" class="text-decoration-none fw-bold small mt-auto "style="color: #0d0618;">Edit Portfolio →</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 card h-100 border-0 transition-hover shadow-sm text-white" style="background: linear-gradient(135deg, #a58ccc 0%, #4c1d95 100%);">
+                    <div class="fs-1 mb-3 text-white-50"><i class="bi bi-briefcase"></i></div>
+                    <h5 class="fw-bold">Industrial Vacancies</h5>
+                    <p class="small text-white-100">Explore internship and job opportunities curated by the department for your career growth.</p>
+                    <a href="/industrial" class="text-decoration-none fw-bold small mt-auto "style="color: #0d0618;">Browse Opportunities →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="py-5" style="background: linear-gradient(180deg, #fdfdff 0%, #eef2ff 100%); border-top: 1px solid #e0e7ff;">
+        <div class="container text-center">
+            <h5 class="fw-bold" style="color: #312e81;">Need assistance?</h5>
+            <p class="text-muted mb-4 small">Contact the Department Administrator for login issues or result discrepancies.</p>
+            <div class="d-flex justify-content-center flex-wrap gap-4 small fw-bold">
+                <span style="color: #4338ca;"><i class="bi bi-envelope me-2"></i> support@university.edu</span>
+                <span style="color: #4338ca;"><i class="bi bi-telephone me-2"></i> +123 456 7890</span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 border-top" style="background-color: #1e1b4b; color: #e0e7ff;">
+        <div class="container text-center">
+            <p class="mb-0 small">&copy; 2026 Faculty of technological studies  <span class="mx-2">·       </span>         All rights reserved</p>
+        </div>
+    </footer>
+
+</div>
+
+<style>
+    nav.sidebar { display: none !important; }
+    main.col-md-10 { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+    
+    .transition-hover {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border-radius: 20px !important;
+    }
+
+    .transition-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(49, 46, 129, 0.15) !important;
+    }
+
+    h1, h2, h3, h4, h5 { letter-spacing: -0.5px; }
+</style>
+{% endblock %}

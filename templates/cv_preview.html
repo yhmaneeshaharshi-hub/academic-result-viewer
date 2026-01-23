@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<div class="container py-5" style="font-family: 'Inter', sans-serif;">
+    <div class="d-flex justify-content-between mb-4 no-print">
+        <a href="/cv-builder" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Back to Edit
+        </a>
+        <button onclick="window.print()" class="btn btn-dark rounded-pill px-4 shadow">
+            <i class="bi bi-printer me-2"></i>Download as PDF
+        </button>
+    </div>
+
+    <div class="card shadow-lg border-0 mx-auto overflow-hidden" style="max-width: 800px; background: white;">
+        <div class="row g-0">
+            <div class="col-4 bg-dark text-white p-4" style="min-height: 1000px;">
+                <div class="text-center mb-4">
+                    <img src="{{ url_for('static', filename='profile_pics/' + student.profile_pic) }}" 
+                         class="rounded-3 border border-secondary mb-3" style="width: 130px; height: 130px; object-fit: cover;">
+                </div>
+                
+                <h6 class="text-info fw-bold text-uppercase small mb-3">Contact</h6>
+                <p class="small mb-1 opacity-75">{{ student.reg_no }}</p>
+                <p class="small mb-1 opacity-75">{{ student.email or 'No email provided' }}</p>
+                <p class="small mb-1 opacity-75">{{ student.batch }}</p>
+
+                <h6 class="text-info fw-bold text-uppercase small mt-4 mb-3">Skills</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in data.skills %}
+                        {% if skill.strip() %}
+                        <span class="badge border border-secondary fw-normal">{{ skill.strip() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-8 p-5">
+                <h1 class="fw-bold text-dark mb-1">{{ data.name }}</h1>
+                <div style="width: 50px; height: 5px; background: #0dcaf0;" class="mb-4"></div>
+
+                <div class="mb-5">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-2">Profile</h6>
+                    <p class="text-secondary small">{{ data.bio or 'No summary provided.' }}</p>
+                </div>
+
+                <div>
+                    <h6 class="fw-bold text-muted text-uppercase small mb-2">Experience & Projects</h6>
+                    <div class="text-secondary small" style="white-space: pre-wrap;">{{ data.experience or 'No details provided.' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    
+    @media print {
+        .no-print, nav, footer, .sidebar, .btn { display: none !important; }
+        .container { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .card { box-shadow: none !important; border: none !important; margin: 0 !important; }
+        
+        /* Fixed: Including both Webkit and Standard properties */
+        .bg-dark { 
+            background-color: #212529 !important; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+        }
+        .text-info { 
+            color: #0dcaf0 !important; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+        }
+        .badge { 
+            border: 1px solid #444 !important; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+        }
+    }
+
+</style>
+{% endblock %}

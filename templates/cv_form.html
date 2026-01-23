@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm mx-auto rounded-4 border-0" style="max-width: 600px;">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <div class="display-6">📄</div>
+                <h3 class="fw-bold mt-2">CV Personalizer</h3>
+                <p class="text-muted small">The data entered here will appear on your PDF but will <b>not</b> be saved to our database.</p>
+            </div>
+            
+            <form action="/cv-builder" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Full Name (as it should appear)</label>
+                    <input type="text" name="name" class="form-control" value="{{ student.name if student else '' }}">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Professional Summary</label>
+                    <textarea name="bio" class="form-control" rows="3" placeholder="e.g. Passionate Software Engineering student with a focus on web technologies...">{{ student.bio }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Skills (separate with commas)</label>
+                    <input type="text" name="skills" class="form-control" placeholder="Python, Java, HTML, SQL, Project Management">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Experience & Major Projects</label>
+                    <textarea name="experience" class="form-control" rows="6" placeholder="Describe your key projects or internships..."></textarea>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
+                        Generate Modern Preview
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
