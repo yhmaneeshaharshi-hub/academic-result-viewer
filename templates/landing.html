@@ -6,7 +6,7 @@
     <div class="py-5 border-bottom" style="background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%); color: white;">
         <div class="container py-5 text-center">
             <div class="d-inline-block px-3 py-1 mb-3 rounded-pill bg-white shadow-sm small fw-bold" style="color: #4338ca;">
-                ✨ Unilink portal
+                ✨ UniLink portal
             </div>
             <h1 class="display-4 fw-bold mb-3" style="letter-spacing: -1.5px; color: #ffffff;">
                 Architect of your Future,<span style="color: #a5b4fc;"> Personalized Profile Management</span>
@@ -16,7 +16,6 @@
                 Built for the modern student.
             </p>
             <div class="d-flex justify-content-center gap-3">
-                
                 <a href="/login" class="btn btn-outline-light btn-lg px-5 rounded-pill fw-bold">explore</a>
             </div>
         </div>
@@ -40,10 +39,26 @@
 
             <div class="col-md-4">
                 <div class="p-4 card h-100 border-0 transition-hover shadow-sm text-white" style="background: linear-gradient(135deg, #a58ccc 0%, #4c1d95 100%);">
-                    <div class="fs-1 mb-3"><i class="bi bi-person-badge"></i></div>
-                    <h5 class="fw-bold">Digital Portfolio</h5>
-                    <p class="small text-white-100">Transform your student profile into a professional webpage to share with a single link.</p>
-                    <a href="/login" class="text-decoration-none fw-bold small mt-auto "style="color: #0d0618;">Edit Portfolio →</a>
+                    <div class="fs-1 mb-3"><i class="bi bi-chat-left-text"></i></div>
+                    <h5 class="fw-bold">Suggestion Box</h5>
+                    <p class="small text-white-100">Share your ideas or academic concerns anonymously with the department.</p>
+                    
+                    <form action="/submit-suggestion" method="POST" class="mt-auto">
+                        <textarea name="suggestion" class="form-control form-control-sm mb-2 border-0" 
+                                  rows="2" placeholder="Write something..." 
+                                  style="background: rgba(255,255,255,0.15); color: white; border-radius: 10px;" required></textarea>
+                        <button type="submit" class="btn btn-light btn-sm w-100 fw-bold rounded-pill" style="color: #4c1d95;">
+                            Send Idea →
+                        </button>
+                    </form>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="mt-2 small fw-bold text-warning text-center" style="font-size: 10px;">{{ message }}</div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
                 </div>
             </div>
 
@@ -69,18 +84,9 @@
         </div>
     </div>
 
-    <footer class="py-4 border-top" style="background-color: #1e1b4b; color: #e0e7ff;">
-        <div class="container text-center">
-            <p class="mb-0 small">&copy; 2026 Faculty of technological studies  <span class="mx-2">·       </span>         All rights reserved</p>
-        </div>
-    </footer>
-
 </div>
 
 <style>
-    nav.sidebar { display: none !important; }
-    main.col-md-10 { width: 100% !important; margin: 0 !important; padding: 0 !important; }
-    
     .transition-hover {
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         border-radius: 20px !important;
@@ -92,5 +98,11 @@
     }
 
     h1, h2, h3, h4, h5 { letter-spacing: -0.5px; }
+
+    /* Placeholder text color adjustment for visibility */
+    textarea::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-size: 0.85rem;
+    }
 </style>
 {% endblock %}
