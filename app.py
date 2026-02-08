@@ -1,42 +1,45 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
-import pandas as pd
-import os
-from datetime import datetime
-from functools import wraps
+from flask_sqlalchemy import SQLAlchemy #bridge between flask and mysql
+from werkzeug.utils import secure_filename #to secure the file name when uploading profile pics and cvs
+import pandas as pd#to read excel and csv files for bulk uploads of students, subjects, and results
+import os#to handle file paths and directories for uploads and profile pictures
+from datetime import datetime#to handle date and time for student birthdays and last login tracking
+from functools import wraps#to create a login_required decorator that restricts access to certain routes based on user authentication
 
-app = Flask(__name__)
-app.secret_key = "secret_key_for_session" 
+app = Flask(__name__) #create the Flask application instance
+app.secret_key = "secret_key_for_session" # In production, use a secure and random key, and keep it secret!
 
 # --- DATABASE CONFIGURATION ---
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/dept_results_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/dept_results_db'# Update with your MySQL credentials and database name
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Disable the event system to save resources, as we won't be using it
+db = SQLAlchemy(app) # Initialize the SQLAlchemy extension with our Flask app, allowing us to define models and interact with the database using an ORM (Object-Relational Mapping) approach. This means we can work with Python classes and objects instead of writing raw SQL queries, making database operations more intuitive and integrated with our application logic.
 
 # --- FOLDER CONFIGURATION ---
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-PROFILE_PIC_FOLDER = os.path.join(BASE_DIR, 'static', 'profile_pics')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))# Get the absolute path of the directory where this script (app.py) is located. This is used as a base for constructing paths to the uploads and profile pictures folders, ensuring that file operations work correctly regardless of where the app is run from.
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')# Define the path for the uploads folder, which will be used to store files uploaded by the admin (like student lists, subject lists, and results). The os.path.join function is used to create a platform-independent path by combining the base directory with the 'uploads' folder name.
+PROFILE_PIC_FOLDER = os.path.join(BASE_DIR, 'static', 'profile_pics')# Define the path for the profile pictures folder, which will be used to store student profile images. This folder is located within the 'static' directory, which is a common convention in Flask applications for serving static files like images, CSS, and JavaScript. Again, os.path.join is used to ensure the path is constructed correctly across different operating systems.
 
-for folder in [UPLOAD_FOLDER, PROFILE_PIC_FOLDER]:
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+for folder in [UPLOAD_FOLDER, PROFILE_PIC_FOLDER]:# Check if the specified folders (uploads and profile_pics) exist, and if not, create them. This ensures that when the application tries to save files to these directories, it won't encounter errors due to missing folders. The os.path.exists function checks for the existence of the folder, and os.makedirs creates the folder if it doesn't exist.
+    if not os.path.exists(folder):# If the folder does not exist, create it using os.makedirs. This is important for the application's functionality, as it relies on these directories to store uploaded files and profile pictures. By ensuring these folders are created at startup, we prevent potential issues when users try to upload files or update their profiles.
+        os.makedirs(folder)# Create the folder if it doesn't exist, ensuring that the application has the necessary directory structure to function properly. This is a common practice in web applications to handle file storage and organization, especially when dealing with user-generated content like uploads and profile images.
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['PROFILE_PIC_FOLDER'] = PROFILE_PIC_FOLDER
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER# Set the UPLOAD_FOLDER configuration for the Flask app, which will be used as the destination for saving files uploaded by the admin (such as student lists, subject lists, and results). This configuration allows us to easily reference the upload directory throughout our application when handling file uploads.
+app.config['PROFILE_PIC_FOLDER'] = PROFILE_PIC_FOLDER# Set the PROFILE_PIC_FOLDER configuration for the Flask app, which will be used as the destination for saving student profile pictures. This allows us to easily reference the profile pictures directory when students upload their profile images, ensuring that they are stored in a consistent location and can be accessed when needed (e.g., when displaying student profiles).
 
 # --- LOGIN REQUIRED DECORATOR ---
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_role' not in session:
-            flash("Please login first", "warning")
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
+# decorator function to add extran functionalities to login
+def login_required(f):# Define a decorator function called login_required that takes another function f as an argument. This decorator will be used to wrap routes that require user authentication, ensuring that only logged-in users can access those routes. The @wraps(f) decorator from the functools module is used to preserve the original function's metadata (like its name and docstring) when it is wrapped by the login_required decorator.
+    @wraps(f)# This decorator is used to preserve the original function's metadata (such as its name and docstring) when it is wrapped by the login_required decorator. This is important for debugging and for tools that rely on function metadata, as it allows the wrapped function to retain its identity even after being decorated.
+    def decorated_function(*args, **kwargs):# Define an inner function called decorated_function that takes any number of positional and keyword arguments. This function will perform the actual check for user authentication before calling the original function f. By using *args and **kwargs, we ensure that decorated_function can accept any arguments that the original function f might require, making it flexible and compatible with a wide range of routes.
+        if 'user_role' not in session:# Check if the 'user_role' key is not present in the session object. The session is a special object in Flask that stores data across requests for a particular user. If 'user_role' is not in the session, it means that the user is not logged in or authenticated, and therefore should not be allowed to access the protected route.
+            flash("Please login first", "warning")# If the user is not authenticated, flash a message to the user indicating that they need to log in first. The flash function is used to send a message that can be displayed on the next page the user visits. The second argument "warning" is a category that can be used in the template to style the message appropriately (e.g., with a yellow background for warnings).
+            return redirect(url_for('login'))# Redirect the user to the login page using the redirect and url_for functions. This ensures that unauthenticated users are sent to the login page where they can enter their credentials to gain access to the protected routes. The url_for function generates the URL for the 'login' route, making it easier to manage URLs in the application.
+        return f(*args, **kwargs)# If the user is authenticated (i.e., 'user_role' is in the session), call the original function f with the provided arguments and return its result. This allows the protected route to execute normally for authenticated users, while still enforcing access control for unauthenticated users.
+    return decorated_function# Return the decorated_function, which is the actual function that will be called when the route is accessed. This allows us to use the @login_required decorator on any route, and it will automatically check for user authentication before allowing access to that route.
 
-# --- MODELS ---
+
+
+# ------------- MODELS -------------
 class Student(db.Model):
     __tablename__ = 'students'
     reg_no = db.Column(db.String(50), primary_key=True)
@@ -84,11 +87,12 @@ class Suggestion(db.Model):
     __tablename__ = 'suggestions'
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.now) # වෙලාව සටහන් කර ගැනීමට
+    timestamp = db.Column(db.DateTime, default=datetime.now) # tyo store time
 
 # --- ROUTES ---
 
-@app.route('/')
+# <<<<<<<landing page>>>>>>>>
+@app.route('/') 
 def landing():
     return render_template('landing.html')
 
@@ -98,7 +102,7 @@ def login():
         user_input = request.form.get('username')
         pass_input = request.form.get('password')
         
-        admin = Admin.query.filter_by(username=user_input, password=pass_input).first()
+        admin = Admin.query.filter_by(username=user_input, password=pass_input).first() # check user logins with database
         if admin:
             session.update({'user_role': 'admin', 'user_id': admin.username})
             return redirect(url_for('admin_dashboard'))
@@ -107,14 +111,16 @@ def login():
         if student:
             student.last_login = datetime.now()
             db.session.commit()
-            # Fixed the 'namef' bug here
+            
             session.update({'user_role': 'student', 'user_id': student.reg_no, 'user_name': student.name})
             return redirect(url_for('student_results'))
             
         flash("❌ Invalid Username or Password!", "danger")
     return render_template('login.html')
 
-@app.route('/student/results')
+
+#<<<<<<<<student Results>>>>>>>
+@app.route('/student/results') #creating url to show the student results
 @login_required
 def student_results():
     reg_no = session.get('user_id')
@@ -124,12 +130,13 @@ def student_results():
         'A+': 4.0, 'A': 4.0, 'A-': 3.7,
         'B+': 3.3, 'B': 3.0, 'B-': 2.7,
         'C+': 2.3, 'C': 2.0, 'C-': 1.7,
-        'D+': 1.3, 'D': 1.0, 'F': 0.0
+        'D+': 1.3, 'D': 1.0, 'F': 0.0,
+        'ab':0.0,'E':0.0
     }
 
     raw_results = db.session.query(Result, Subject).join(
         Subject, Result.subject_code == Subject.subject_code
-    ).filter(Result.reg_no == reg_no).all()
+    ).filter(Result.reg_no == reg_no).all()# Query the database to retrieve the results for the logged-in student. This query joins the Result and Subject tables based on the subject_code, allowing us to access both the grade and the subject details (like credits) in one query. The filter ensures that we only get results for the current student based on their registration number (reg_no).
 
     sem_groups = {}
     for res, sub in raw_results:
@@ -157,20 +164,63 @@ def student_results():
 
     return render_template('student_results.html', student=student, semesters=final_semesters)
 
+# --- FUNCTIONAL FORGOT PASSWORD ROUTE USING BIRTHDAY ---
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
+    # Handle the form submission when the user clicks the reset button
     if request.method == 'POST':
-        flash("Feature under development or check admin.", "info")
-        return redirect(url_for('login'))
+        # Retrieve data from the HTML form fields
+        reg_input = request.form.get('reg_no')
+        bday_input = request.form.get('birthday')  # This is the date string from the user
+        new_pass = request.form.get('new_password')
+
+        # Query the 'students' table to find a record with the matching registration number
+        student = Student.query.filter_by(reg_no=reg_input).first()
+
+        # Check if a student was found and if their birthday matches the user input
+        # Note: convert student.birthday to a string to ensure a proper comparison with the input
+        if student and student.birthday and str(student.birthday) == bday_input:
+            # Identity is confirmed: update the student's password in the database
+            student.password = new_pass
+            db.session.commit()
+            
+            # Send a success message and send the user back to the login page
+            flash("✅ Password reset successfully! You can now login.", "success")
+            return redirect(url_for('login'))
+        else:
+            # Identity verification failed (wrong reg_no or wrong birthday)
+            flash("❌ Verification failed. Please check your Registration Number or Birthday.", "danger")
+            
+            # Use render_template to stay on the same page so the error message is visible here
+            # Do NOT use redirect(url_for('login')) here
+            return render_template('forgot_password.html')
+
+    # Display the empty forgot password form for initial page load (GET request)
     return render_template('forgot_password.html')
 
+#<<<<<Industrial vacancy>>>>>
 @app.route('/industrial')
 def industrial():
     selected_cat = request.args.get('cat', 'all')
     vacancies = Vacancy.query.all() if selected_cat == 'all' else Vacancy.query.filter_by(category=selected_cat).all()
     return render_template('industrial.html', vacancies=vacancies, active_cat=selected_cat)
 
-# --- ADMIN ROUTES ---
+
+# <<<<submit suggestion>>>>>
+@app.route('/submit-suggestion', methods=['GET', 'POST'])
+def submit_suggestion():
+    if request.method == 'POST':
+        msg = request.form.get('suggestion')
+        if msg:
+            new_sug = Suggestion(content=msg)
+            db.session.add(new_sug)
+            db.session.commit()
+            flash("✅ Your suggestion was submitted anonymously!", "success")
+    return redirect(url_for('landing')) 
+
+# ------------------------------------------------ ADMIN ROUTES ----------------------------------------------------------------------------------
+
+#<<<<admin dashboard>>>>>
 @app.route('/admin/dashboard')
 @login_required
 def admin_dashboard():
@@ -178,6 +228,7 @@ def admin_dashboard():
     logins = Student.query.filter(Student.last_login != None).order_by(Student.last_login.desc()).all()
     return render_template('admin_dashboard.html', scount=Student.query.count(), subcount=Subject.query.count(), logins=logins)
 
+#<<<<<Add vacnacy>>>>>>
 @app.route('/admin/add-vacancy', methods=['POST'])
 @login_required
 def add_vacancy():
@@ -191,7 +242,9 @@ def add_vacancy():
         flash("✅ Vacancy Posted!", "success")
     return redirect(url_for('admin_dashboard'))
 
-# --- FILE UPLOAD ROUTES (Corrected and Added) ---
+
+
+#<<<<<upload students>>>>>>>
 
 @app.route('/upload_students', methods=['POST'])
 @login_required
@@ -218,6 +271,8 @@ def upload_students():
         flash(f"❌ Error: {str(e)}", "danger")
     return redirect(url_for('admin_dashboard'))
 
+
+#<<<<<upload subjects>>>>>>
 @app.route('/upload_subjects', methods=['POST'])
 @login_required
 def upload_subjects():
@@ -239,6 +294,8 @@ def upload_subjects():
         flash(f"❌ Error: {str(e)}", "danger")
     return redirect(url_for('admin_dashboard'))
 
+
+#<<<<<upload results>>>>>>
 @app.route('/upload', methods=['POST'])
 @login_required
 def upload_results():
@@ -259,7 +316,7 @@ def upload_results():
             flash(f"❌ Error: {str(e)}", "danger")
     return redirect(url_for('admin_dashboard'))
 
-# --- PROFILE & CV ROUTES ---
+#<<<<student profile>>>>>>
 
 @app.route('/student/profile', methods=['GET', 'POST'])
 @login_required
@@ -298,82 +355,66 @@ def student_profile():
         return redirect(url_for('student_profile'))
     return render_template('student_profile.html', student=student)
 
-@app.route('/cv-builder')
+#<<<<<building the cv>>>>>>>
+@app.route('/cv-builder') 
 @login_required
 def cv_builder():
-    student = Student.query.get(session.get('user_id'))
+    student = Student.query.filter_by(reg_no=session.get('user_id')).first()
+    if not student:
+        return redirect(url_for('login'))
     return render_template('cv_form.html', student=student)
 
+
+#<<<<generate the cv>>>>>
 @app.route('/cv-preview', methods=['GET', 'POST'])
 @login_required
 def cv_preview():
+    #  Get the logged-in student for official sidebar info (Photo, Links, Email)
     reg_no = session.get('user_id')
     student = Student.query.get(reg_no)
     
-    # Form එකෙන් එවන දත්ත ලබා ගැනීම
     if request.method == 'POST':
+        #  Capture "Adjusted" data from the Form
+        #  clean the skills string into a list to match your HTML loop
+        raw_skills = request.form.get('skills', '')
+        skills_list = [s.strip() for s in raw_skills.split(',') if s.strip()]
+
         cv_data = {
             'name': request.form.get('name'),
             'bio': request.form.get('bio'),
             'experience': request.form.get('experience'),
-            'skills': request.form.get('skills', '').split(',') 
+            'skills': skills_list ,
+            'projects': request.form.get('projects')
         }
     else:
-        # කෙලින්ම URL එකෙන් ආවොත් පෙන්වන Default දත්ත
+        # Fallback: If they visit the page without submitting the form
         cv_data = {
             'name': student.name,
             'bio': student.bio or "No summary provided.",
             'experience': "No details provided.",
+            'projects': "No details provided.",
             'skills': []
         }
 
-    # Results සහ Subject join කර දත්ත ලබා ගැනීම
-    # මෙන්න මෙතන තිබුණු Indentation සහ brackets mismatch එක දැන් නිවැරදියි
-    results = db.session.query(Result, Subject).join(
-        Subject, Result.subject_code == Subject.subject_code
-    ).filter(Result.reg_no == reg_no).all()
-
-    return render_template('cv_preview.html', student=student, results=results, data=cv_data)
+    #  Send both 'student' (Database) and 'data' (Form) to the template
+    # We do NOT pass results here to keep the CV focused on job skills
+    return render_template('cv_preview.html', student=student, data=cv_data)
 
 
-    
-    # 1. ශිෂ්‍යයාට යෝජනා එවීමට ඇති Route එක
-# 1. ශිෂ්‍යයා Landing Page එකේ ඉදන් එවද්දී වැඩ කරන Route එක
-@app.route('/submit-suggestion', methods=['GET', 'POST'])
-def submit_suggestion():
-    if request.method == 'POST':
-        msg = request.form.get('suggestion')
-        if msg:
-            new_sug = Suggestion(content=msg)
-            db.session.add(new_sug)
-            db.session.commit()
-            flash("✅ Your suggestion was submitted anonymously!", "success")
-    return redirect(url_for('landing')) # මෙතන 'landing' යනු ඔබගේ landing page function එකේ නමයි
 
-# 2. Admin ට මේවා පෙන්වන Route එක (BuildError එක එන්නේ මේක නැති වුණාමයි)
+# <<<<<admin can see the suggestion>>>>>>>>
 @app.route('/admin/view-suggestions')
 @login_required
 def admin_suggestions():
     if session.get('user_role') != 'admin':
         return redirect(url_for('login'))
     
-    # සියලුම suggestions දත්ත ගබඩාවෙන් ලබා ගැනීම
+    # store the suggestion
     all_suggestions = Suggestion.query.order_by(Suggestion.timestamp.desc()).all()
     return render_template('admin_suggestions.html', suggestions=all_suggestions)
 
-@app.route('/portfolio/<reg_no>')
-def public_portfolio(reg_no):
-    # Registration number එකෙන් ශිෂ්‍යයාගේ විස්තර සොයාගන්න
-    student = Student.query.get_or_404(reg_no)
-    
-    # ප්‍රතිඵල සහ විෂයන් join කර ලබාගන්න (පෝර්ට්ෆෝලියෝ එකේ පෙන්වීමට අවශ්‍ය නම්)
-    results = db.session.query(Result, Subject).join(
-        Subject, Result.subject_code == Subject.subject_code
-    ).filter(Result.reg_no == reg_no).all()
-    
-    return render_template('public_portfolio.html', student=student, results=results)
-# 2. Admin ට සියලුම යෝජනා බැලීමට ඇති Route එක
 
+#<<<<log out>>>>>
 @app.route('/logout')
 def logout():
     session.clear()
@@ -381,7 +422,7 @@ def logout():
 
 
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
+if __name__ == '__main__':# When the script is run directly (as the main program), this block of code will execute. It ensures that the database tables are created before starting the Flask development server. The app.run(debug=True) line starts the server in debug mode, which provides helpful error messages and auto-reloads the server when code changes are detected, making development easier.
+    with app.app_context():# Ensure that we are within the application context when calling db.create_all(), which is necessary for SQLAlchemy to access the app's configuration and properly create the database tables based on the defined models.
+        db.create_all()# Create the database tables based on the defined models (Student, Subject, Result, Admin, Vacancy, Suggestion). This will create the tables in the MySQL database if they do not already exist. It's important to run this before starting the server to ensure that the database schema is set up correctly for the application to function.
+    app.run(debug=True)# Start the Flask development server with debug mode enabled, allowing for easier debugging and automatic reloading of the server when code changes are made. This is useful during development to see changes in real-time and to get detailed error messages if something goes wrong.

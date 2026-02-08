@@ -7,7 +7,7 @@
             <div class="text-center mb-4">
                 <div class="display-6">📄</div>
                 <h3 class="fw-bold mt-2">CV Personalizer</h3>
-                <p class="text-muted small">The data entered here will appear on your PDF but will <b>not</b> be saved to our database.</p>
+              
             </div>
             
             <form action="/cv-preview" method="POST">
@@ -27,8 +27,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Experience & Major Projects</label>
-                    <textarea name="experience" class="form-control" rows="6" placeholder="Describe your key projects or internships..."></textarea>
+                    <label class="form-label fw-bold">Experience</label>
+                    <textarea name="experience" class="form-control" rows="6" placeholder="Describe your experience"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold"> Major Projects</label>
+                    <textarea name="projects" class="form-control" rows="6" placeholder="list out the projects you've worked on"></textarea>
                 </div>
 
                 <div class="d-grid mt-4">
