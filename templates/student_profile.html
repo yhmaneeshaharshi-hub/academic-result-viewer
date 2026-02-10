@@ -116,7 +116,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label fw-bold small">Portfolio URL</label>
-                            <input type="url" name="portfolio_link" class="form-control" value="{{ student.portfolio_link or '' }}">
+                           <input type="url" name="portfolio_link" class="form-control" value="{{ student.portfolio_link or '' }}">
                         </div>
                     </div>
 
@@ -140,7 +140,7 @@
                         <i class="bi bi-save me-2"></i>Save All Profile Changes
                     </button>
 
-                    <a href="{{ url_for('public_portfolio', reg_no=student.reg_no) }}" class="btn btn-info">View My Public Portfolio</a>
+                    
                 </form>
             </div>
         </div>

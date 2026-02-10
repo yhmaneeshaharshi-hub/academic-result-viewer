@@ -13,7 +13,7 @@
             <form action="/cv-preview" method="POST">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Full Name (as it should appear)</label>
-                    <input type="text" name="name" class="form-control" value="{{ student.name if student else '' }}">
+                    <input type="text" name="name" class="form-control" value="{% if student %}{{ student.name }}{% endif %}" >
                 </div>
                 
                 <div class="mb-3">
@@ -31,14 +31,14 @@
                     <textarea name="experience" class="form-control" rows="6" placeholder="Describe your experience"></textarea>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 ">
                     <label class="form-label fw-bold"> Major Projects</label>
                     <textarea name="projects" class="form-control" rows="6" placeholder="list out the projects you've worked on"></textarea>
                 </div>
 
                 <div class="d-grid mt-4">
                     <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
-                        Generate Modern Preview
+                        Generate  Preview
                     </button>
                 </div>
             </form>

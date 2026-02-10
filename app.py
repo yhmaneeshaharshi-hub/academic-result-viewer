@@ -28,15 +28,23 @@ app.config['PROFILE_PIC_FOLDER'] = PROFILE_PIC_FOLDER# Set the PROFILE_PIC_FOLDE
 
 # --- LOGIN REQUIRED DECORATOR ---
 # decorator function to add extran functionalities to login
-def login_required(f):# Define a decorator function called login_required that takes another function f as an argument. This decorator will be used to wrap routes that require user authentication, ensuring that only logged-in users can access those routes. The @wraps(f) decorator from the functools module is used to preserve the original function's metadata (like its name and docstring) when it is wrapped by the login_required decorator.
-    @wraps(f)# This decorator is used to preserve the original function's metadata (such as its name and docstring) when it is wrapped by the login_required decorator. This is important for debugging and for tools that rely on function metadata, as it allows the wrapped function to retain its identity even after being decorated.
-    def decorated_function(*args, **kwargs):# Define an inner function called decorated_function that takes any number of positional and keyword arguments. This function will perform the actual check for user authentication before calling the original function f. By using *args and **kwargs, we ensure that decorated_function can accept any arguments that the original function f might require, making it flexible and compatible with a wide range of routes.
-        if 'user_role' not in session:# Check if the 'user_role' key is not present in the session object. The session is a special object in Flask that stores data across requests for a particular user. If 'user_role' is not in the session, it means that the user is not logged in or authenticated, and therefore should not be allowed to access the protected route.
-            flash("Please login first", "warning")# If the user is not authenticated, flash a message to the user indicating that they need to log in first. The flash function is used to send a message that can be displayed on the next page the user visits. The second argument "warning" is a category that can be used in the template to style the message appropriately (e.g., with a yellow background for warnings).
-            return redirect(url_for('login'))# Redirect the user to the login page using the redirect and url_for functions. This ensures that unauthenticated users are sent to the login page where they can enter their credentials to gain access to the protected routes. The url_for function generates the URL for the 'login' route, making it easier to manage URLs in the application.
-        return f(*args, **kwargs)# If the user is authenticated (i.e., 'user_role' is in the session), call the original function f with the provided arguments and return its result. This allows the protected route to execute normally for authenticated users, while still enforcing access control for unauthenticated users.
-    return decorated_function# Return the decorated_function, which is the actual function that will be called when the route is accessed. This allows us to use the @login_required decorator on any route, and it will automatically check for user authentication before allowing access to that route.
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # 'user_role' session එකේ නැත්නම් කෙලින්ම login පිටුවට යවනවා
+        if 'user_role' not in session:
+            flash("Please login first", "warning")
+            return redirect(url_for('login',next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
+# Browser එක පරණ පිටු මතක තබා ගැනීම (Cache) වැළැක්වීමට
+@app.after_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 # ------------- MODELS -------------
@@ -102,22 +110,27 @@ def login():
         user_input = request.form.get('username')
         pass_input = request.form.get('password')
         
-        admin = Admin.query.filter_by(username=user_input, password=pass_input).first() # check user logins with database
+        # 1. Admin Login
+        admin = Admin.query.filter_by(username=user_input, password=pass_input).first()
         if admin:
             session.update({'user_role': 'admin', 'user_id': admin.username})
             return redirect(url_for('admin_dashboard'))
             
+        # 2. Student Login
         student = Student.query.filter_by(reg_no=user_input, password=pass_input).first()
         if student:
-            student.last_login = datetime.now()
-            db.session.commit()
-            
+            # ... (උඹේ පරණ session update කෝඩ් එක) ...
             session.update({'user_role': 'student', 'user_id': student.reg_no, 'user_name': student.name})
+            
+            # --- අලුත් කෑල්ල මෙන්න ---
+            if session.get('redirect_to_cv'):
+                session.pop('redirect_to_cv', None) # දාපු ලකුණ අයින් කරනවා
+                return redirect(url_for('cv_builder')) # කෙලින්ම CV Builder එකට යවනවා
+            
             return redirect(url_for('student_results'))
             
         flash("❌ Invalid Username or Password!", "danger")
     return render_template('login.html')
-
 
 #<<<<<<<<student Results>>>>>>>
 @app.route('/student/results') #creating url to show the student results
@@ -356,14 +369,17 @@ def student_profile():
     return render_template('student_profile.html', student=student)
 
 #<<<<<building the cv>>>>>>>
-@app.route('/cv-builder') 
-@login_required
-def cv_builder():
-    student = Student.query.filter_by(reg_no=session.get('user_id')).first()
-    if not student:
-        return redirect(url_for('login'))
-    return render_template('cv_form.html', student=student)
 
+@app.route('/cv-builder')
+def cv_builder():
+    # 1. ලොග් වෙලා නැත්නම්, "මූට CV එකක් හදන්න ඕනේ" කියලා සටහන් කරගන්නවා
+    if 'user_id' not in session:
+        session['redirect_to_cv'] = True  # මේක තමයි අපේ ලකුණ
+        return redirect(url_for('login'))
+    
+    # 2. ලොග් වෙලා ඉන්නවා නම් සාමාන්‍ය විදිහට පේජ් එක පෙන්වනවා
+    student = Student.query.get(session.get('user_id'))
+    return render_template('cv_form.html', student=student)
 
 #<<<<generate the cv>>>>>
 @app.route('/cv-preview', methods=['GET', 'POST'])
@@ -419,6 +435,8 @@ def admin_suggestions():
 def logout():
     session.clear()
     return redirect(url_for('landing'))
+
+
 
 
 
