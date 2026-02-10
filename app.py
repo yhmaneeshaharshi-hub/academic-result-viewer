@@ -10,35 +10,35 @@ app = Flask(__name__) #create the Flask application instance
 app.secret_key = "secret_key_for_session" # In production, use a secure and random key, and keep it secret!
 
 # --- DATABASE CONFIGURATION ---
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/dept_results_db'# Update with your MySQL credentials and database name
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Disable the event system to save resources, as we won't be using it
-db = SQLAlchemy(app) # Initialize the SQLAlchemy extension with our Flask app, allowing us to define models and interact with the database using an ORM (Object-Relational Mapping) approach. This means we can work with Python classes and objects instead of writing raw SQL queries, making database operations more intuitive and integrated with our application logic.
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/dept_results_db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
+db = SQLAlchemy(app) 
 
 # --- FOLDER CONFIGURATION ---
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))# Get the absolute path of the directory where this script (app.py) is located. This is used as a base for constructing paths to the uploads and profile pictures folders, ensuring that file operations work correctly regardless of where the app is run from.
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')# Define the path for the uploads folder, which will be used to store files uploaded by the admin (like student lists, subject lists, and results). The os.path.join function is used to create a platform-independent path by combining the base directory with the 'uploads' folder name.
-PROFILE_PIC_FOLDER = os.path.join(BASE_DIR, 'static', 'profile_pics')# Define the path for the profile pictures folder, which will be used to store student profile images. This folder is located within the 'static' directory, which is a common convention in Flask applications for serving static files like images, CSS, and JavaScript. Again, os.path.join is used to ensure the path is constructed correctly across different operating systems.
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))# 
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')# 
+PROFILE_PIC_FOLDER = os.path.join(BASE_DIR, 'static', 'profile_pics')# 
 
-for folder in [UPLOAD_FOLDER, PROFILE_PIC_FOLDER]:# Check if the specified folders (uploads and profile_pics) exist, and if not, create them. This ensures that when the application tries to save files to these directories, it won't encounter errors due to missing folders. The os.path.exists function checks for the existence of the folder, and os.makedirs creates the folder if it doesn't exist.
-    if not os.path.exists(folder):# If the folder does not exist, create it using os.makedirs. This is important for the application's functionality, as it relies on these directories to store uploaded files and profile pictures. By ensuring these folders are created at startup, we prevent potential issues when users try to upload files or update their profiles.
-        os.makedirs(folder)# Create the folder if it doesn't exist, ensuring that the application has the necessary directory structure to function properly. This is a common practice in web applications to handle file storage and organization, especially when dealing with user-generated content like uploads and profile images.
+for folder in [UPLOAD_FOLDER, PROFILE_PIC_FOLDER]:
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER# Set the UPLOAD_FOLDER configuration for the Flask app, which will be used as the destination for saving files uploaded by the admin (such as student lists, subject lists, and results). This configuration allows us to easily reference the upload directory throughout our application when handling file uploads.
-app.config['PROFILE_PIC_FOLDER'] = PROFILE_PIC_FOLDER# Set the PROFILE_PIC_FOLDER configuration for the Flask app, which will be used as the destination for saving student profile pictures. This allows us to easily reference the profile pictures directory when students upload their profile images, ensuring that they are stored in a consistent location and can be accessed when needed (e.g., when displaying student profiles).
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER 
+app.config['PROFILE_PIC_FOLDER'] = PROFILE_PIC_FOLDER
 
 # --- LOGIN REQUIRED DECORATOR ---
 # decorator function to add extran functionalities to login
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # 'user_role' session එකේ නැත්නම් කෙලින්ම login පිටුවට යවනවා
+      
         if 'user_role' not in session:
             flash("Please login first", "warning")
             return redirect(url_for('login',next=request.url))
         return f(*args, **kwargs)
     return decorated_function
 
-# Browser එක පරණ පිටු මතක තබා ගැනීම (Cache) වැළැක්වීමට
+#stop the browser from saving (caching) your website's pages
 @app.after_request
 def add_header(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -119,13 +119,13 @@ def login():
         # 2. Student Login
         student = Student.query.filter_by(reg_no=user_input, password=pass_input).first()
         if student:
-            # ... (උඹේ පරණ session update කෝඩ් එක) ...
+    
             session.update({'user_role': 'student', 'user_id': student.reg_no, 'user_name': student.name})
             
-            # --- අලුත් කෑල්ල මෙන්න ---
+            
             if session.get('redirect_to_cv'):
-                session.pop('redirect_to_cv', None) # දාපු ලකුණ අයින් කරනවා
-                return redirect(url_for('cv_builder')) # කෙලින්ම CV Builder එකට යවනවා
+                session.pop('redirect_to_cv', None) 
+                return redirect(url_for('cv_builder'))
             
             return redirect(url_for('student_results'))
             
@@ -162,8 +162,8 @@ def student_results():
         cr = float(sub.credits) if sub.credits else 0.0
         
         sem_groups[s_num]['list'].append({'res': res, 'sub': sub})
-        sem_groups[s_num]['pts'] += (gp * cr)
-        sem_groups[s_num]['cr'] += cr
+        sem_groups[s_num]['pts'] += (gp * cr) #points
+        sem_groups[s_num]['cr'] += cr #credits
 
     final_semesters = []
     for s_num in sorted(sem_groups.keys()):
@@ -187,13 +187,13 @@ def forgot_password():
         bday_input = request.form.get('birthday')  # This is the date string from the user
         new_pass = request.form.get('new_password')
 
-        # Query the 'students' table to find a record with the matching registration number
+        # Query the students table to find a record with the matching registration number
         student = Student.query.filter_by(reg_no=reg_input).first()
 
         # Check if a student was found and if their birthday matches the user input
-        # Note: convert student.birthday to a string to ensure a proper comparison with the input
+        #  convert student.birthday to a string to ensure a proper comparison with the input
         if student and student.birthday and str(student.birthday) == bday_input:
-            # Identity is confirmed: update the student's password in the database
+            # Identity is confirmed---- update the student's password in the database
             student.password = new_pass
             db.session.commit()
             
@@ -372,12 +372,12 @@ def student_profile():
 
 @app.route('/cv-builder')
 def cv_builder():
-    # 1. ලොග් වෙලා නැත්නම්, "මූට CV එකක් හදන්න ඕනේ" කියලා සටහන් කරගන්නවා
+    
     if 'user_id' not in session:
-        session['redirect_to_cv'] = True  # මේක තමයි අපේ ලකුණ
+        session['redirect_to_cv'] = True  
         return redirect(url_for('login'))
     
-    # 2. ලොග් වෙලා ඉන්නවා නම් සාමාන්‍ය විදිහට පේජ් එක පෙන්වනවා
+    
     student = Student.query.get(session.get('user_id'))
     return render_template('cv_form.html', student=student)
 
@@ -440,7 +440,7 @@ def logout():
 
 
 
-if __name__ == '__main__':# When the script is run directly (as the main program), this block of code will execute. It ensures that the database tables are created before starting the Flask development server. The app.run(debug=True) line starts the server in debug mode, which provides helpful error messages and auto-reloads the server when code changes are detected, making development easier.
-    with app.app_context():# Ensure that we are within the application context when calling db.create_all(), which is necessary for SQLAlchemy to access the app's configuration and properly create the database tables based on the defined models.
-        db.create_all()# Create the database tables based on the defined models (Student, Subject, Result, Admin, Vacancy, Suggestion). This will create the tables in the MySQL database if they do not already exist. It's important to run this before starting the server to ensure that the database schema is set up correctly for the application to function.
-    app.run(debug=True)# Start the Flask development server with debug mode enabled, allowing for easier debugging and automatic reloading of the server when code changes are made. This is useful during development to see changes in real-time and to get detailed error messages if something goes wrong.
+if __name__ == '__main__':#entry point to run the script directly
+    with app.app_context():#To give the database access to the app's config before it starts
+        db.create_all()#To automatically create the MySQL tables from my models
+    app.run(debug=True) #To see errors and auto-restart during coding.
