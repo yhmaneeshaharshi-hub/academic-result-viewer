@@ -56,14 +56,19 @@
 <body>
 
 <div class="admin-header">
-    <div class="container d-flex justify-content-between align-items-center">
+    <div class="container d-flex gap-1  align-items-center">
         <div>
             <h2 class="fw-bold mb-0">Admin Management Portal</h2>
             <p class="opacity-75 mb-0">Manage subjects, students, results, and industrial links.</p>
         </div>
-        <a href="/logout" class="btn btn-outline-light px-4 rounded-pill fw-bold shadow-sm">
-            <i class="bi bi-box-arrow-right me-2"></i>Logout
+        <a href="/logout" class="btn btn-outline-light px-4 rounded-pill fw-bold shadow-sm ms-auto">
+             <i class="bi bi-box-arrow-right me-2"></i>Logout
+        
+            
         </a>
+
+        <a href="/" class="btn  px-4 rounded-pill fw-bold shadow-sm ">⬅️</a>
+
     </div>
     <div class="mt-4">
     <a href="{{ url_for('admin_suggestions') }}" class="btn btn-primary shadow-sm px-4 rounded-pill">
@@ -104,7 +109,7 @@
             <div class="card upload-card h-100 p-3">
                 <div class="card-body">
                     <h5 class="card-title fw-bold mb-3" style="color: var(--purple-rich);">Subjects</h5>
-                    <p class="small text-muted mb-3">Headers: <code>subject_code, subject_name, credits</code></p>
+                    <!--<p class="small text-muted mb-3">Headers: <code>subject_code, subject_name, credits</code></p>-->
                     <form action="/upload_subjects" method="POST" enctype="multipart/form-data">
                         <input type="file" name="file" accept=".csv,.xlsx,.xls" class="form-control mb-3" required>
                         <button type="submit" class="btn btn-purple w-100 fw-bold">Upload CSV/Excel</button>
@@ -117,7 +122,7 @@
             <div class="card upload-card h-100 p-3">
                 <div class="card-body">
                     <h5 class="card-title fw-bold mb-3" style="color: var(--purple-rich);"> Students</h5>
-                    <p class="small text-muted mb-3">Headers: <code>reg_no, name, password, batch</code></p>
+                   <!---- <p class="small text-muted mb-3">Headers: <code>reg_no, name, password, batch</code></p>-->
                     <form action="/upload_students" method="POST" enctype="multipart/form-data">
                         <input type="file" name="file" accept=".csv,.xlsx,.xls" class="form-control mb-3" required>
                         <button type="submit" class="btn btn-purple w-100 fw-bold">Upload CSV/Excel</button>

@@ -11,7 +11,7 @@ app.secret_key = "secret_key_for_session" # In production, use a secure and rand
 
 # --- DATABASE CONFIGURATION ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/dept_results_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
 db = SQLAlchemy(app) 
 
 # --- FOLDER CONFIGURATION ---
